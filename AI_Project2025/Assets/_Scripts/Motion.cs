@@ -1,101 +1,120 @@
 using System.Collections;
 using System.Timers;
+using Unity.Hierarchy;
 using Unity.VisualScripting;
 using UnityEngine;
 
 public class Motion : MonoBehaviour
 {
-    public float gravity = 9.81f;
+    public ParentPlayerScript parent;
+
 
     public bool isGrounded;
+    public Rigidbody2D rb;
+    public float jumpHeight;
+    public float rayDistance;
+    public float moveSpeed;
+
+    Vector3 maxLeftPos;
+    public float boxCastSize;
+
+    private void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+
+        maxLeftPos = transform.position;
+    }
 
     private void Update()
     {
+        CheckGround();
+
+
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            // f(x)=-(4x-2)²+4
-
-            StartCoroutine(JumpCor());
-
-
+            // f(x)=-(sqrt(h)*4 x-sqrt(h))^(2)+1+h+o
+            if (isGrounded)
+            {
+                Jump();
+            }
         }
+        Stretch();
+
         if (Input.GetKey(KeyCode.A))
         {
-            transform.position = new Vector3(transform.position.x - 5 * Time.deltaTime, transform.position.y, transform.position.z);
+            if (!IsWallInFront(-1))
+            {
+
+                if (transform.position.x > maxLeftPos.x)
+                {
+                    Move(-1);
+
+                }
+            }
         }
         if (Input.GetKey(KeyCode.D))
         {
-            transform.position = new Vector3(transform.position.x + 5 * Time.deltaTime, transform.position.y, transform.position.z);
+            if (!IsWallInFront(1))
+            {
+                Move(1);
+
+            }
+
         }
-        Gravity();
-
-
     }
 
-    public float amplitude;
-
-    IEnumerator JumpCor()
+    private void Stretch()
     {
-        float timer = 0;
 
-        var x = transform.position.y;
-        while (timer <= 1)
+        float vel = rb.linearVelocityY;
+        if (vel > 0)
         {
-            float jump = -Mathf.Pow(4 * timer - 1, 2);
 
-            timer += Time.deltaTime;
-            //transform.position = new Vector3(transform.position.x, transform.position.y + (50 * jump) * Time.deltaTime, transform.position.z);
-            transform.position = new Vector3(transform.position.x, amplitude * Mathf.Sin(3.14f * timer) + x * Time.deltaTime, transform.position.z);
-            //if (isGrounded)
-            //{
-            //    if (timer >= 0.3f)
-            //    {
-            //    yield break;
-
-            //    }
-            //}
-            yield return null;
         }
-        //while (timer <= 1f)
-        //{
-        //    timer += Time.fixedDeltaTime;
-        //    transform.position = new Vector3(transform.position.x, transform.position.y - 55 * Time.deltaTime, transform.position.z);
-        //    if (isGrounded)
-        //        {
-        //            yield break;
-        //        }
-        //    yield return null;
-        //}
+        float x = vel / 30;
+        float y = vel / 15;
+        transform.localScale = new Vector3(Mathf.Abs(1.5f - Mathf.Clamp(x, 0.5f, 1f)), Mathf.Clamp(y, 1, 1.5f), transform.localScale.z);
 
-        //Debug.Log("pressed");
-        //float timer = 0;
-
-        //var startPos = Mathf.Abs(transform.position.y);
-        //var startPosHor = Mathf.Sqrt(startPos);
-        //while (timer <= 10)
-        //{
-        //    float jumpPosition = -Mathf.Pow((4 * timer /*- startPosHor*/), 2) + startPos;
-        //    //float jumpPosition = -Mathf.Pow(timer,2) + 3;
-        //    transform.position = new Vector3(transform.position.x, jumpPosition, transform.position.z);
-        //    Debug.Log($"{jumpPosition}");
-        //    timer += Time.fixedDeltaTime;
-        //    if (isGrounded)
-        //    {
-        //        yield break;
-        //    }
-        //    yield return null;
-        //}
     }
-    private void Gravity()
+
+    void Jump()
     {
-        var hit = Physics2D.Raycast(transform.position, Vector3.down, transform.lossyScale.y / 2, 1 << 6);
+        float jumpForce = Mathf.Sqrt(jumpHeight * -2 * (Physics2D.gravity.y * rb.gravityScale));
+        Debug.Log(jumpForce);
+
+        rb.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
+    }
+    void Move(float dir)
+    {
+        //rb.position = new Vector3(transform.position.x + dir * moveSpeed * Time.deltaTime, transform.position.y);
+
+        var moveto = new Vector3(transform.position.x + dir * moveSpeed * Time.deltaTime, transform.position.y, transform.position.z);
+        if (moveto.x >= maxLeftPos.x)
+        {
+            transform.position = moveto;
+            maxLeftPos = parent.followCam.cam.ViewportToWorldPoint(new Vector3(0, 0.5f, parent.followCam.cam.nearClipPlane));
+        }
+    }
+
+    private bool IsWallInFront(int dir)
+    {
+        var hit = Physics2D.BoxCast(transform.position,Vector2.one, 0, Vector2.right * dir, boxCastSize/* 0.61f*/, 1 << 6);
+        if (hit)
+        {
+            return true;
+        }
+        return false;
+    }
+    private void CheckGround()
+    {
+        var hit = Physics2D.BoxCast(transform.position, Vector2.one, 0, Vector2.down, boxCastSize, 1 << 6);
         if (hit)
         {
             isGrounded = true;
+
         }
         else
         {
-            transform.position += Vector3.down * gravity;
             isGrounded = false;
         }
     }
