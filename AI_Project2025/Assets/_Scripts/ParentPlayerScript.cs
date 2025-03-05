@@ -1,3 +1,5 @@
+using Assets._Scripts;
+using System;
 using UnityEngine;
 
 public class ParentPlayerScript : MonoBehaviour
@@ -5,10 +7,17 @@ public class ParentPlayerScript : MonoBehaviour
     public Motion motion;
     public FollowCam followCam;
 
+    public EventHandler<PlayerDeadEventArgs> OnPlayerDead;
 
-    public void Died()
+    public int UID;
+    private void Start()
     {
-        enabled = false;
+        GlobalGameManager._instance.AddPlayer(this);
+    }
+
+     void Died()
+    {
+        OnPlayerDead?.Invoke(this, new PlayerDeadEventArgs(this));
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -16,7 +25,6 @@ public class ParentPlayerScript : MonoBehaviour
         if (collision.gameObject.layer == 15) // void
         {
             Died();
-            GlobalGameManager._instance.PlayerDied();
         }
     }
 }

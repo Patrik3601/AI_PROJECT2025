@@ -1,4 +1,7 @@
+using Assets._Scripts;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -16,23 +19,28 @@ public class GlobalGameManager : MonoBehaviour
             return _instance;
         }
     }
+    public int ID = 0;
 
-
-
-    public void PlayerDied()
+    public List<ParentPlayerScript> players;
+    public void AddPlayer(ParentPlayerScript player)
     {
-        StartCoroutine(StartNew());
+        players.Add(player);
+        player.UID = ID++;
+        player.OnPlayerDead += DeadPlayer;
     }
-    IEnumerator StartNew()
+
+    private void DeadPlayer(object sender, PlayerDeadEventArgs e)
     {
-        yield return new WaitForSeconds(0.5f);
-        SceneManager.LoadScene("Game");
+        e.player.gameObject.SetActive(false);
+        players.Remove(e.player);
     }
+
     private void Awake()
     {
         if (_instance == null)
         {
             _instance = this;
+            players = new();
         }
         else
         {
