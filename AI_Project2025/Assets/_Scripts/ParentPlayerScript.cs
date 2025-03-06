@@ -10,16 +10,22 @@ public class ParentPlayerScript : MonoBehaviour
     public EventHandler<PlayerDeadEventArgs> OnPlayerDead;
 
     public int UID;
-    private void Start()
+    public int currentGeneration;
+
+    private void Awake()
     {
         GlobalGameManager._instance.AddPlayer(this);
     }
 
-     void Died()
+    void Died()
     {
         OnPlayerDead?.Invoke(this, new PlayerDeadEventArgs(this));
     }
 
+    void ChangeGen()
+    {
+        currentGeneration++;
+    }
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.layer == 15) // void

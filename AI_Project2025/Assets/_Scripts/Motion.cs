@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class Motion : MonoBehaviour
 {
-    public ParentPlayerScript parent;
+    public ParentPlayerScript parentScript;
 
 
     public bool isGrounded;
@@ -92,7 +92,7 @@ public class Motion : MonoBehaviour
         if (moveto.x >= maxLeftPos.x)
         {
             transform.position = moveto;
-            maxLeftPos = parent.followCam.cam.ViewportToWorldPoint(new Vector3(0, 0.5f, parent.followCam.cam.nearClipPlane));
+            maxLeftPos = FollowCam._instance.cam.ViewportToWorldPoint(new Vector3(0, 0.5f, FollowCam._instance.cam.nearClipPlane));  
         }
     }
 

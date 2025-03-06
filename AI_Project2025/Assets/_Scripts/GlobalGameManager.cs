@@ -19,13 +19,14 @@ public class GlobalGameManager : MonoBehaviour
             return _instance;
         }
     }
-    public int ID = 0;
+    public int IDCounter = 0;
+    public int currentPlayerIndex = 0;
 
     public List<ParentPlayerScript> players;
     public void AddPlayer(ParentPlayerScript player)
     {
         players.Add(player);
-        player.UID = ID++;
+        player.UID = IDCounter++;
         player.OnPlayerDead += DeadPlayer;
     }
 
@@ -33,6 +34,28 @@ public class GlobalGameManager : MonoBehaviour
     {
         e.player.gameObject.SetActive(false);
         players.Remove(e.player);
+
+
+        if (players.Count > 0)
+        {
+            currentPlayerIndex = players.Count - 1;
+        }
+        else
+        {
+            currentPlayerIndex = 0;
+        }
+    }
+    public int SetCurrentPlayerIndex(int newValue) // 1 | -1
+    {
+        if (newValue > 0)
+        {
+            currentPlayerIndex = (currentPlayerIndex + 1) % players.Count;
+        }
+        else
+        {
+            currentPlayerIndex = (currentPlayerIndex - 1 + players.Count) % players.Count;
+        }
+        return currentPlayerIndex;
     }
 
     private void Awake()

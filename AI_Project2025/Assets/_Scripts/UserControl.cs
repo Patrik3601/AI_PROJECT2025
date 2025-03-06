@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using UnityEngine;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class UserControl : MonoBehaviour
 {
@@ -20,7 +22,21 @@ public class UserControl : MonoBehaviour
         }
     }
 
+    private void Awake()
+    {
+        if (_instance == null)
+        {
+            _instance = this;
+        }
+        else
+        {
+            Destroy(this);
+        }
+    }
 
+
+    public EventHandler OnPlayersJoined;
+    public EventHandler<PlayerSwitchEventArgs> OnPlayerSwitch;
 
     private void Update()
     {
@@ -28,16 +44,25 @@ public class UserControl : MonoBehaviour
         {
             Spawn();
         }
+        if (Input.GetKeyDown(KeyCode.LeftArrow)) // change to previous player
+        {
+            OnPlayerSwitch?.Invoke(this, new PlayerSwitchEventArgs(KeyCode.LeftArrow));
+        }
+        if (Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            OnPlayerSwitch?.Invoke(this, new PlayerSwitchEventArgs(KeyCode.RightArrow));
+        }
     }
 
     private void Spawn()
     {
         for (int i = 0; i < spawnCount; i++)
         {
-          var randomX = UnityEngine.Random.Range(-2f, 2f);
+          var randomX = UnityEngine.Random.Range(-15f, 15f);
 
             var randomY = UnityEngine.Random.Range(-2f, 2f);
             Instantiate(objectToSpawn, new Vector3(spawnPosition.x + randomX, spawnPosition.y + randomY), Quaternion.identity);
+            OnPlayersJoined?.Invoke(this, null);
         }
     }
 }
