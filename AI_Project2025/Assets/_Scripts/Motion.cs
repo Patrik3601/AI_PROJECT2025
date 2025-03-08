@@ -1,39 +1,34 @@
-using System.Collections;
-using System.Timers;
-using Unity.Hierarchy;
-using Unity.VisualScripting;
+using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.LightTransport;
 
 public class Motion : MonoBehaviour
 {
     public ParentPlayerScript parentScript;
 
 
-    public bool isGrounded;
     public Rigidbody2D rb;
     public float jumpHeight;
     public float rayDistance;
     public float moveSpeed;
 
-    Vector3 maxLeftPos;
     public float boxCastSize;
 
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
 
-        maxLeftPos = transform.position;
     }
 
     private void Update()
     {
-        CheckGround();
+        IsGrounded();
 
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
             // f(x)=-(sqrt(h)*4 x-sqrt(h))^(2)+1+h+o
-            if (isGrounded)
+            if (IsGrounded())
             {
                 Jump();
             }
@@ -45,11 +40,8 @@ public class Motion : MonoBehaviour
             if (!IsWallInFront(-1))
             {
 
-                if (transform.position.x > maxLeftPos.x)
-                {
-                    Move(-1);
+                Move(-1);
 
-                }
             }
         }
         if (Input.GetKey(KeyCode.D))
@@ -80,43 +72,53 @@ public class Motion : MonoBehaviour
     public void Jump()
     {
         float jumpForce = Mathf.Sqrt(jumpHeight * -2 * (Physics2D.gravity.y * rb.gravityScale));
-        Debug.Log(jumpForce);
+        //Debug.Log(jumpForce);
 
         rb.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
     }
     public void Move(float dir)
     {
+        var d = dir;
+
+        if (d > 0)
+        {
+            d = 1;
+        }
+        else if(d < 0)
+        {
+            d = -1;
+        }
         //rb.position = new Vector3(transform.position.x + dir * moveSpeed * Time.deltaTime, transform.position.y);
 
-        var moveto = new Vector3(transform.position.x + dir * moveSpeed * Time.deltaTime, transform.position.y, transform.position.z);
-        if (moveto.x >= maxLeftPos.x)
+        var moveto = new Vector3(transform.position.x + d * moveSpeed * Time.deltaTime, transform.position.y, transform.position.z);
+        //if (moveto.x >= maxLeftPos.x)
         {
             transform.position = moveto;
-            maxLeftPos = FollowCam._instance.cam.ViewportToWorldPoint(new Vector3(0, 0.5f, FollowCam._instance.cam.nearClipPlane));  
+            //maxLeftPos = FollowCam._instance.cam.ViewportToWorldPoint(new Vector3(0, 0.5f, FollowCam._instance.cam.nearClipPlane));  
         }
     }
 
     public bool IsWallInFront(int dir)
     {
-        var hit = Physics2D.BoxCast(transform.position,Vector2.one, 0, Vector2.right * dir, boxCastSize/* 0.61f*/, 1 << 6);
+        var hit = Physics2D.BoxCast(transform.position, Vector2.one, 0, Vector2.right * dir, boxCastSize/* 0.61f*/, 1 << 6);
         if (hit)
         {
             return true;
         }
         return false;
     }
-    public void CheckGround()
+  public  Transform[] rays;
+    public bool IsGrounded()
     {
-        var hit = Physics2D.BoxCast(transform.position, Vector2.one, 0, Vector2.down, boxCastSize, 1 << 6);
-        if (hit)
+        for (int i = 0; i < rays.Length; i++)
         {
-            isGrounded = true;
-
+            var hit = Physics2D.Raycast(rays[i].position, -rays[i].transform.up, rayDistance, 1 << 6);
+            if (hit)
+            {
+                return true;
+            }
         }
-        else
-        {
-            isGrounded = false;
-        }
+        return false;
     }
 
     private void OnDrawGizmos()

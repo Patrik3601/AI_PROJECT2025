@@ -1,7 +1,6 @@
 using Assets._Scripts;
 using System;
 using UnityEngine;
-using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class FollowCam : MonoBehaviour
 {

@@ -1,6 +1,4 @@
 using Assets._Scripts;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using Unity.MLAgents;
 using UnityEngine;
@@ -32,7 +30,7 @@ public class GlobalGameManager : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        Debug.Log("FIXED UPDATE");
+        //Debug.Log("FIXED UPDATE");
         Academy.Instance.EnvironmentStep();
     }
     
@@ -50,11 +48,14 @@ public class GlobalGameManager : MonoBehaviour
 
     private void DeadPlayer(object sender, PlayerDeadEventArgs e)
     {
-        e.player.gameObject.SetActive(false);
-        players.Remove(e.player);
+        //e.player.gameObject.SetActive(false);
+        //players.Remove(e.player);
+        //if (players.Count == 0)
+        //{
+        //    SceneManager.LoadScene("Game");
+        //}
 
-
-        if (players.Count > 0)
+        if (players.Count > 1)
         {
             currentPlayerIndex = players.Count - 1;
         }
@@ -62,6 +63,8 @@ public class GlobalGameManager : MonoBehaviour
         {
             currentPlayerIndex = 0;
         }
+
+        
     }
     public int SetCurrentPlayerIndex(int newValue) // 1 | -1
     {
