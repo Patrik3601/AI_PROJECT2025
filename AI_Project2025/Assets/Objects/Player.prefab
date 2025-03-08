@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 880147592860240013}
   - component: {fileID: 5207193221979873664}
   - component: {fileID: 4300852393231276142}
+  - component: {fileID: 3574203022929146084}
+  - component: {fileID: 434969471459252623}
   m_Layer: 10
   m_Name: Player
   m_TagString: Untagged
@@ -105,6 +107,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   motion: {fileID: 880147592860240013}
   followCam: {fileID: 0}
+  PlayerAgent: {fileID: 434969471459252623}
+  UID: 0
+  currentGeneration: 0
 --- !u!114 &880147592860240013
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -117,7 +122,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0985abf089f695a49a9a1c35ba76b2b9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  parent: {fileID: 5053055878326593498}
+  parentScript: {fileID: 5053055878326593498}
   isGrounded: 0
   rb: {fileID: 4300852393231276142}
   jumpHeight: 5
@@ -197,3 +202,52 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
+--- !u!114 &3574203022929146084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5664019130652261146}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d1c4e0b1822b495aa52bc52839ecb30, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_BrainParameters:
+    VectorObservationSize: 8
+    NumStackedVectorObservations: 8
+    m_ActionSpec:
+      m_NumContinuousActions: 1
+      BranchSizes: 01000000
+    VectorActionSize: 
+    VectorActionDescriptions: []
+    VectorActionSpaceType: 0
+    hasUpgradedBrainParametersWithActionSpec: 1
+  m_Model: {fileID: 0}
+  m_InferenceDevice: 0
+  m_BehaviorType: 0
+  m_BehaviorName: My Behavior
+  TeamId: 0
+  m_UseChildSensors: 1
+  m_UseChildActuators: 1
+  m_DeterministicInference: 0
+  m_ObservableAttributeHandling: 2
+--- !u!114 &434969471459252623
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5664019130652261146}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5237ec59a693547068ae9ea05d6d3640, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  agentParameters:
+    maxStep: 0
+  hasUpgradedFromAgentParameters: 1
+  MaxStep: 5000
+  motion: {fileID: 880147592860240013}
+  parentScript: {fileID: 5053055878326593498}

@@ -2,6 +2,7 @@ using Assets._Scripts;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.MLAgents;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -22,6 +23,23 @@ public class GlobalGameManager : MonoBehaviour
     public int IDCounter = 0;
     public int currentPlayerIndex = 0;
 
+    
+    
+    private void Start()
+    {
+        Debug.Log("START");
+        Academy.Instance.AutomaticSteppingEnabled = false;
+    }
+    private void FixedUpdate()
+    {
+        Debug.Log("FIXED UPDATE");
+        Academy.Instance.EnvironmentStep();
+    }
+    
+    
+    
+    
+    
     public List<ParentPlayerScript> players;
     public void AddPlayer(ParentPlayerScript player)
     {

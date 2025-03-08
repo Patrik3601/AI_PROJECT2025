@@ -9,10 +9,12 @@ public class ParentPlayerScript : MonoBehaviour
 
     public EventHandler<PlayerDeadEventArgs> OnPlayerDead;
 
+    public PlayerAgent PlayerAgent;
+    
     public int UID;
     public int currentGeneration;
 
-    private void Awake()
+    private void Start()
     {
         GlobalGameManager._instance.AddPlayer(this);
     }

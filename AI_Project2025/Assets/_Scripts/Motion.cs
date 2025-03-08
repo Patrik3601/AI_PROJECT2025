@@ -77,14 +77,14 @@ public class Motion : MonoBehaviour
 
     }
 
-    void Jump()
+    public void Jump()
     {
         float jumpForce = Mathf.Sqrt(jumpHeight * -2 * (Physics2D.gravity.y * rb.gravityScale));
         Debug.Log(jumpForce);
 
         rb.AddForce(new Vector2(0, jumpForce), ForceMode2D.Impulse);
     }
-    void Move(float dir)
+    public void Move(float dir)
     {
         //rb.position = new Vector3(transform.position.x + dir * moveSpeed * Time.deltaTime, transform.position.y);
 
@@ -96,7 +96,7 @@ public class Motion : MonoBehaviour
         }
     }
 
-    private bool IsWallInFront(int dir)
+    public bool IsWallInFront(int dir)
     {
         var hit = Physics2D.BoxCast(transform.position,Vector2.one, 0, Vector2.right * dir, boxCastSize/* 0.61f*/, 1 << 6);
         if (hit)
@@ -105,7 +105,7 @@ public class Motion : MonoBehaviour
         }
         return false;
     }
-    private void CheckGround()
+    public void CheckGround()
     {
         var hit = Physics2D.BoxCast(transform.position, Vector2.one, 0, Vector2.down, boxCastSize, 1 << 6);
         if (hit)

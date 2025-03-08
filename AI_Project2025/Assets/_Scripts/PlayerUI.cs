@@ -35,7 +35,20 @@ public class PlayerUI : MonoBehaviour
     {
         UserControl._instance.OnPlayersJoined += PlayerJoined;
         UserControl._instance.OnPlayerSwitch += PlayerSwitch;
+        for (int i = 0; i < GlobalGameManager._instance.players.Count; i++)
+        {
+            GlobalGameManager._instance.players[i].PlayerAgent.OnNextGeneration += NextGen;
+            
+        }
     }
+
+    private void NextGen(object sender, EventArgs e)
+    {
+        GlobalGameManager._instance.players[GlobalGameManager._instance.currentPlayerIndex].currentGeneration++;
+       
+        UpdateUI();
+    }
+
     private void PlayerSwitch(object sender, PlayerSwitchEventArgs e)
     {
         switch (e.arrow)
@@ -54,6 +67,7 @@ public class PlayerUI : MonoBehaviour
     private void PlayerJoined(object sender, EventArgs e)
     {
         UpdateUI();
+        
     }
     void UpdateUI()
     {
