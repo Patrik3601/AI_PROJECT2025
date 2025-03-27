@@ -13,18 +13,18 @@ public class Motion : MonoBehaviour
     public float moveSpeed;
 
     public float boxCastSize;
-
+    public Transform[] checkHoleRays;
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
 
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         IsGrounded();
 
-
+        Debug.Log(IsThereHoleInFront());
         if (Input.GetKeyDown(KeyCode.Space))
         {
             // f(x)=-(sqrt(h)*4 x-sqrt(h))^(2)+1+h+o
@@ -33,7 +33,7 @@ public class Motion : MonoBehaviour
                 Jump();
             }
         }
-        Stretch();
+        //Stretch();
 
         if (Input.GetKey(KeyCode.A))
         {
@@ -78,19 +78,10 @@ public class Motion : MonoBehaviour
     }
     public void Move(float dir)
     {
-        var d = dir;
-
-        if (d > 0)
-        {
-            d = 1;
-        }
-        else if(d < 0)
-        {
-            d = -1;
-        }
+      
         //rb.position = new Vector3(transform.position.x + dir * moveSpeed * Time.deltaTime, transform.position.y);
 
-        var moveto = new Vector3(transform.position.x + d * moveSpeed * Time.deltaTime, transform.position.y, transform.position.z);
+        var moveto = new Vector3(transform.position.x + dir * moveSpeed * Time.deltaTime, transform.position.y, transform.position.z);
         //if (moveto.x >= maxLeftPos.x)
         {
             transform.position = moveto;
@@ -120,7 +111,18 @@ public class Motion : MonoBehaviour
         }
         return false;
     }
-
+    public bool IsThereHoleInFront()
+    {
+        for (int i = 0; i < checkHoleRays.Length; i++)
+        {
+            var hit = Physics2D.Raycast(checkHoleRays[i].position, -checkHoleRays[i].transform.up, Mathf.Infinity, 1<<6);
+            if (!hit)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.yellow;

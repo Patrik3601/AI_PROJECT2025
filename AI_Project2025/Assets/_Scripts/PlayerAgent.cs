@@ -22,10 +22,13 @@ public class PlayerAgent : Agent
     }
     private void Update()
     {
-        //Debug.Log(GetCumulativeReward());
+        Debug.Log(GetCumulativeReward());
     }
     public override void OnEpisodeBegin()
     {
+        float dist = Vector3.Distance(startPos, transform.position);
+        AddReward(dist);
+
         //Debug.Log(GetCumulativeReward());
         transform.position = new Vector3(0, -12, 0);
         startPos = transform.position;
@@ -45,6 +48,7 @@ public class PlayerAgent : Agent
         sensor.AddObservation(motion.IsGrounded() ? 1 : 0);
         sensor.AddObservation(motion.IsWallInFront(-1) ? 1 : 0);
         sensor.AddObservation(motion.IsWallInFront(1) ? 1 : 0);
+        sensor.AddObservation(motion.IsThereHoleInFront() ? 1 : 0);
     }
     public override void Heuristic(in ActionBuffers actionsOut)
     {
@@ -52,8 +56,8 @@ public class PlayerAgent : Agent
     }
     public override void OnActionReceived(ActionBuffers actions)
     {
-        float moveX = actions.ContinuousActions[0];
         int jump = actions.DiscreteActions[0];
+        int moveX = actions.DiscreteActions[1];
         //Debug.Log(moveX);
 
         //if (!motion.IsWallInFront(-1) && !motion.IsWallInFront(1))
@@ -66,36 +70,49 @@ public class PlayerAgent : Agent
         //}
 
         Debug.Log(moveX);
-        if (moveX < 0)
+        if (moveX == 0)
+        {
+            //nothing
+        }
+        if (moveX == 1)
         {
             if (!motion.IsWallInFront(-1))
             {
-                motion.Move(moveX);
+                motion.Move(-1);
 
             }
         }
-        if (moveX > 0)
+        if (moveX == 2)
         {
             if (!motion.IsWallInFront(1))
             {
-                motion.Move(moveX);
+                motion.Move(1);
             }
         }
         //Debug.Log("jump" + jump);
 
+        //AddReward(0.01f);
+
+
         if (transform.position.x < startPos.x)
         {
-            AddReward(-0.1f);
+            AddReward(-1f);
         }
         if (jump == 1 && motion.IsGrounded() && Time.time > lastJumpTime + jumpCooldown)
         {
-            AddReward(0.1f);
+            AddReward(0.5f);
             lastJumpTime = Time.time;
             motion.Jump();
         }
+        else if (jump == 1 && motion.IsGrounded() && Time.time < lastJumpTime + jumpCooldown)
+        {
+            AddReward(-0.1f);
+
+        }
+
         if (jump == 1 && !motion.IsGrounded())
         {
-            AddReward(-0.05f);
+            AddReward(-0.1f);
         }
     }
     private float lastJumpTime = 0f;
@@ -104,7 +121,7 @@ public class PlayerAgent : Agent
 
     private void HandleDeath(object sender, PlayerDeadEventArgs e)
     {
-        AddReward(-2f);  // Give a negative reward for dying
+        AddReward(-10f);  // Give a negative reward for dying
         EndEpisode();     // Restart the training episode
     }
 
@@ -117,7 +134,7 @@ public class PlayerAgent : Agent
             EndEpisode();
         }
     }
-   
+
     private void OnDestroy()
     {
         // Unsubscribe from the event to avoid memory leaks
