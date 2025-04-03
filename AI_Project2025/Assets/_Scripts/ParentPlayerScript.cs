@@ -27,6 +27,7 @@ public class ParentPlayerScript : MonoBehaviour
     void ChangeGen()
     {
         currentGeneration++;
+        Debug.Log("CURGEN "+currentGeneration);
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {

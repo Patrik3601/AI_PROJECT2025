@@ -44,7 +44,9 @@ public class PlayerUI : MonoBehaviour
     private void NextGen(object sender, EventArgs e)
     {
         GlobalGameManager._instance.players[GlobalGameManager._instance.currentPlayerIndex].currentGeneration++;
-       
+        Debug.Log("CURGEN " + GlobalGameManager._instance.players[GlobalGameManager._instance.currentPlayerIndex].currentGeneration);
+
+
         UpdateUI();
     }
 
@@ -72,5 +74,7 @@ public class PlayerUI : MonoBehaviour
     {
         playerID_UI.text = $"Player: {GlobalGameManager._instance.players[GlobalGameManager._instance.currentPlayerIndex].UID}";
         playerGen_UI.text = $"Generation: {GlobalGameManager._instance.players[GlobalGameManager._instance.currentPlayerIndex].currentGeneration}";
+        Debug.Log("CURGEN " + GlobalGameManager._instance.players[GlobalGameManager._instance.currentPlayerIndex].currentGeneration);
+
     }
 }

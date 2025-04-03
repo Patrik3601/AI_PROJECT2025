@@ -3,6 +3,7 @@ using Assets._Scripts;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
+using Unity.Sentis;
 using UnityEngine;
 
 public class PlayerAgent : Agent
@@ -14,20 +15,20 @@ public class PlayerAgent : Agent
     public GameObject targetPosition;
 
     public Vector3 startPos;
-
+    public float lastRecord;
     public override void Initialize()
     {
         // Subscribe to death event
         parentScript.OnPlayerDead += HandleDeath;
     }
-    private void Update()
-    {
-        Debug.Log(GetCumulativeReward());
-    }
+    //private void Update()
+    //{
+    //    //Debug.Log(GetCumulativeReward());
+    //}
     public override void OnEpisodeBegin()
     {
-        float dist = Vector3.Distance(startPos, transform.position);
-        AddReward(dist);
+        //float dist = Vector3.Distance(startPos, transform.position);
+        //AddReward(dist);
 
         //Debug.Log(GetCumulativeReward());
         transform.position = new Vector3(0, -12, 0);
@@ -40,77 +41,75 @@ public class PlayerAgent : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        motion.IsGrounded();
-
         sensor.AddObservation(transform.position);
         sensor.AddObservation(targetPosition.transform.position);
-        sensor.AddObservation(motion.rb.linearVelocity);
-        sensor.AddObservation(motion.IsGrounded() ? 1 : 0);
-        sensor.AddObservation(motion.IsWallInFront(-1) ? 1 : 0);
-        sensor.AddObservation(motion.IsWallInFront(1) ? 1 : 0);
-        sensor.AddObservation(motion.IsThereHoleInFront() ? 1 : 0);
+        sensor.AddObservation(motion.rb.linearVelocityY);
+        sensor.AddObservation(motion.xSpeed);
+        sensor.AddObservation(motion.canJump ? 1 : 0);
+        sensor.AddObservation(motion.isGrounded ? 1 : 0);
+        sensor.AddObservation(motion.isStuck ? 1 : 0);
+        sensor.AddObservation(motion.isWallRight ? 1 : 0);
+        sensor.AddObservation(motion.isWallLeft ? 1 : 0);
+        sensor.AddObservation(motion.isHoleRight ? 1 : 0);
+        sensor.AddObservation(motion.isHoleLeft ? 1 : 0);
     }
     public override void Heuristic(in ActionBuffers actionsOut)
     {
-        ActionSegment<float> continuousAction = actionsOut.ContinuousActions;
+
+        //int xMove = 0;
+        //if (Input.GetKey(KeyCode.A))
+        //{
+        //    xMove = 1;
+        //}
+        //if (Input.GetKey(KeyCode.D))
+        //{
+        //    xMove = 2;
+
+        //}
+        //int jump = 0;
+        //if (Input.GetKeyDown(KeyCode.Space))
+        //{
+        //    jump = 1;
+        //}
+        //ActionSegment<int> discreteActions = actionsOut.DiscreteActions;
+        //discreteActions[0] = jump;
+        //discreteActions[1] = xMove;
     }
     public override void OnActionReceived(ActionBuffers actions)
     {
         int jump = actions.DiscreteActions[0];
         int moveX = actions.DiscreteActions[1];
-        //Debug.Log(moveX);
-
-        //if (!motion.IsWallInFront(-1) && !motion.IsWallInFront(1))
-        //{
-        //    motion.Move(moveX);
-        //}
-        //if (motion.IsGrounded())
-        //{
-        //    motion.Jump();
-        //}
 
         Debug.Log(moveX);
         if (moveX == 0)
         {
-            //nothing
+
         }
         if (moveX == 1)
         {
-            if (!motion.IsWallInFront(-1))
-            {
-                motion.Move(-1);
-
-            }
+            motion.Move(-1);
         }
         if (moveX == 2)
         {
-            if (!motion.IsWallInFront(1))
-            {
-                motion.Move(1);
-            }
+            motion.Move(1);
         }
-        //Debug.Log("jump" + jump);
-
-        //AddReward(0.01f);
-
 
         if (transform.position.x < startPos.x)
         {
             AddReward(-1f);
         }
-        if (jump == 1 && motion.IsGrounded() && Time.time > lastJumpTime + jumpCooldown)
+        if (jump == 1 && motion.isGrounded && Time.time > lastJumpTime + jumpCooldown)
         {
-            AddReward(0.5f);
+            //AddReward(0.5f);
             lastJumpTime = Time.time;
             motion.Jump();
         }
-        else if (jump == 1 && motion.IsGrounded() && Time.time < lastJumpTime + jumpCooldown)
+        if (motion.isStuck)
         {
-            AddReward(-0.1f);
-
+            AddReward(-0.1f * motion.stuckTimer - motion.stuckThresholdTime);
         }
-
-        if (jump == 1 && !motion.IsGrounded())
+        AddReward(Vector3.Distance(startPos, transform.position) * 0.003f);
+        if (jump == 1 && !motion.canJump)
         {
             AddReward(-0.1f);
         }
@@ -121,7 +120,7 @@ public class PlayerAgent : Agent
 
     private void HandleDeath(object sender, PlayerDeadEventArgs e)
     {
-        AddReward(-10f);  // Give a negative reward for dying
+        SetReward(-500f);  // Give a negative reward for dying
         EndEpisode();     // Restart the training episode
     }
 
@@ -130,7 +129,7 @@ public class PlayerAgent : Agent
         if (collision.gameObject.CompareTag("Goal"))
         {
             //Debug.Log("entered");
-            AddReward(20f);
+            SetReward(1000f);
             EndEpisode();
         }
     }
