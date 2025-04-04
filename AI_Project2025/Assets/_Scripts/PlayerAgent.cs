@@ -22,7 +22,7 @@ public class PlayerAgent : Agent
     private float jumpStartX = 0f;
     private float jumpDistanceThreshold = 2.0f; // Minimum horizontal distance to reward a long jump
 
-    private float epsilon = 0.00f;  // Exploration rate (10% chance to explore)
+    private float epsilon = 0.0f;  // Exploration rate (10% chance to explore)
     private float epsilonDecay = 0.99999f;  // Decay factor for epsilon
     private float minEpsilon = 0.00f;  // Minimum epsilon value
 
@@ -47,7 +47,7 @@ public class PlayerAgent : Agent
     
     public override void Initialize()
     {
-        //Time.timeScale = 50f; // Speed up the game for training
+       //Time.timeScale = 50f; // Speed up the game for training
         
         // Subscribe to the player's death event
         parentScript.OnPlayerDead += HandleDeath;
@@ -63,8 +63,8 @@ public class PlayerAgent : Agent
 
     public override void CollectObservations(VectorSensor sensor)
     {
-        sensor.AddObservation(transform.position);
-        sensor.AddObservation(targetPosition.transform.position);
+        //sensor.AddObservation(transform.position);
+        //sensor.AddObservation(targetPosition.transform.position);
         sensor.AddObservation(motion.rb.linearVelocityY);
         sensor.AddObservation(motion.xSpeed);
         sensor.AddObservation(motion.canJump ? 1 : 0);
@@ -166,7 +166,7 @@ public class PlayerAgent : Agent
 }
     private void HandleDeath(object sender, PlayerDeadEventArgs e)
     {
-        SetReward(-200f); // Negative reward for dying
+        SetReward(-15f); // Negative reward for dying
         EndEpisode();   // Restart episode after death
     }
 
@@ -174,7 +174,7 @@ public class PlayerAgent : Agent
     {
         if (collision.gameObject.CompareTag("Goal"))
         {
-            SetReward(500f); // Reward for reaching the goal
+            SetReward(25f); // Reward for reaching the goal
             EndEpisode();
         }
     }
